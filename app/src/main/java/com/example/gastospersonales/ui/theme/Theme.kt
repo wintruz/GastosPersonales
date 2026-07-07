@@ -1,58 +1,67 @@
 package com.example.gastospersonales.ui.theme
 
-import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+/**
+ * Tema Material 3 de la app. Mapea los tokens de Color.kt a los roles de
+ * un ColorScheme, de modo que todos los componentes (Scaffold, Button,
+ * Card, TextField…) tomen los colores correctos automáticamente.
+ *
+ * Por ahora sigue el tema del sistema (isSystemInDarkTheme). En el Sprint 4,
+ * la preferencia de tema guardada en DataStore podrá forzar claro u oscuro
+ * pasando un valor explícito a "oscuro".
+ */
+
+private val EsquemaClaro = lightColorScheme(
+    primary = AccentL,
+    onPrimary = Surface2L,
+    primaryContainer = BgAccentL,
+    onPrimaryContainer = AccentL,
+    background = Surface1L,
+    onBackground = TextPrimaryL,
+    surface = Surface2L,
+    onSurface = TextPrimaryL,
+    surfaceVariant = Surface0L,
+    onSurfaceVariant = TextSecondaryL,
+    outline = BorderL,
+    outlineVariant = BorderL,
+    error = DangerL,
+    onError = Surface2L,
+    errorContainer = BgDangerL,
+    onErrorContainer = DangerL
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+private val EsquemaOscuro = darkColorScheme(
+    primary = AccentD,
+    onPrimary = Surface0D,
+    primaryContainer = BgAccentD,
+    onPrimaryContainer = AccentD,
+    background = Surface1D,
+    onBackground = TextPrimaryD,
+    surface = Surface2D,
+    onSurface = TextPrimaryD,
+    surfaceVariant = Surface0D,
+    onSurfaceVariant = TextSecondaryD,
+    outline = BorderD,
+    outlineVariant = BorderD,
+    error = DangerD,
+    onError = Surface0D,
+    errorContainer = BgDangerD,
+    onErrorContainer = DangerD
 )
 
 @Composable
 fun GastosPersonalesTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    oscuro: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
+        colorScheme = if (oscuro) EsquemaOscuro else EsquemaClaro,
+        typography = Tipografia,
         content = content
     )
 }

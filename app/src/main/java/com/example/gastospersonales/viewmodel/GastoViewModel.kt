@@ -154,4 +154,20 @@ class GastoViewModel(
         }
         return inicio.timeInMillis to fin.timeInMillis
     }
+
+    /**
+     * Salta directamente a un mes/año concreto (elegido en el selector
+     * emergente). Reemplaza el mes visible; los Flow con flatMapLatest
+     * recargan solos los gastos y el total del nuevo mes.
+     */
+    fun irAMes(mesAnio: MesAnio) {
+        _mesActual.value = mesAnio
+    }
+
+    /**
+     * Devuelve un gasto por su id, o null si no existe. Es suspend porque
+     * lee un valor puntual (no un Flow); el formulario la llama dentro de
+     * un LaunchedEffect para precargar los campos en modo edición.
+     */
+    suspend fun obtenerPorId(id: Long): Gasto? = gastoRepositorio.obtenerPorId(id)
 }
