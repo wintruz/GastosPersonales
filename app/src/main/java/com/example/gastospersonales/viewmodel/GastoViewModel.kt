@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gastospersonales.data.GastoRepositorio
 import com.example.gastospersonales.model.Gasto
+import com.example.gastospersonales.util.GestorArchivos
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -108,6 +109,24 @@ class GastoViewModel(
         }
     }
 
+    /**
+     * Salta directamente a un mes/año concreto (elegido en el selector
+     * emergente). Reemplaza el mes visible; los Flow con flatMapLatest
+     * recargan solos los gastos y el total del nuevo mes.
+     */
+    fun irAMes(mesAnio: MesAnio) {
+        _mesActual.value = mesAnio
+    }
+
+    // ----- Lectura puntual -----
+
+    /**
+     * Devuelve un gasto por su id, o null si no existe. Es suspend porque
+     * lee un valor puntual (no un Flow); el formulario y el detalle la
+     * llaman dentro de un LaunchedEffect.
+     */
+    suspend fun obtenerPorId(id: Long): Gasto? = gastoRepositorio.obtenerPorId(id)
+
     // ----- Escritura de gastos -----
     //
     // Cada función lanza una corrutina en viewModelScope: la escritura
@@ -126,9 +145,16 @@ class GastoViewModel(
         }
     }
 
+    /**
+     * Elimina el gasto y, si tenía una foto de recibo, borra también el
+     * archivo en filesDir (Sprint 4): así no queda un archivo huérfano sin
+     * ningún gasto que lo referencie. GestorArchivos.eliminarSiExiste no
+     * necesita Context: trabaja directo sobre la ruta absoluta guardada.
+     */
     fun eliminarGasto(gasto: Gasto) {
         viewModelScope.launch {
             gastoRepositorio.eliminar(gasto)
+            GestorArchivos.eliminarSiExiste(gasto.rutaRecibo)
         }
     }
 
@@ -154,20 +180,4 @@ class GastoViewModel(
         }
         return inicio.timeInMillis to fin.timeInMillis
     }
-
-    /**
-     * Salta directamente a un mes/año concreto (elegido en el selector
-     * emergente). Reemplaza el mes visible; los Flow con flatMapLatest
-     * recargan solos los gastos y el total del nuevo mes.
-     */
-    fun irAMes(mesAnio: MesAnio) {
-        _mesActual.value = mesAnio
-    }
-
-    /**
-     * Devuelve un gasto por su id, o null si no existe. Es suspend porque
-     * lee un valor puntual (no un Flow); el formulario la llama dentro de
-     * un LaunchedEffect para precargar los campos en modo edición.
-     */
-    suspend fun obtenerPorId(id: Long): Gasto? = gastoRepositorio.obtenerPorId(id)
 }

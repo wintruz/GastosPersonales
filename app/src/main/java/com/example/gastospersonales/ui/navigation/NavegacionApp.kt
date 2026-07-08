@@ -6,23 +6,29 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.gastospersonales.data.PreferenciasRepository
+import com.example.gastospersonales.ui.screens.ConfiguracionScreen
+import com.example.gastospersonales.ui.screens.DetalleScreen
 import com.example.gastospersonales.ui.screens.FormularioScreen
 import com.example.gastospersonales.ui.screens.ListaScreen
 import com.example.gastospersonales.viewmodel.CategoriaViewModel
 import com.example.gastospersonales.viewmodel.GastoViewModel
 
 /**
- * Grafo de navegación de la app. Define el "mapa" de pantallas y cómo se
- * viaja entre ellas. La lista es la pantalla inicial; desde ella se navega
- * al formulario, pasándole el id del gasto (o -1 para uno nuevo).
+ * Grafo de navegación de la app.
  *
- * Ambos ViewModel se crean una vez arriba (en MainActivity) y se comparten
- * con las pantallas, para que lista y formulario vean el mismo estado.
+ * Sprint 4 agrega dos pantallas: Detalle (con el botón de compartir) y
+ * Configuración. Al tocar un gasto en la lista ahora se abre el Detalle en
+ * vez de ir directo al formulario; desde el Detalle se puede editar, lo
+ * que sí navega al formulario. Los ViewModel se crean una vez en
+ * MainActivity y se comparten entre pantallas; preferenciasRepository viaja
+ * igual, pero sin ViewModel de por medio (ver nota en ViewModelFactory.kt).
  */
 @Composable
 fun NavegacionApp(
     gastoViewModel: GastoViewModel,
-    categoriaViewModel: CategoriaViewModel
+    categoriaViewModel: CategoriaViewModel,
+    preferenciasRepository: PreferenciasRepository
 ) {
     val navController = rememberNavController()
 
@@ -33,8 +39,11 @@ fun NavegacionApp(
             ListaScreen(
                 gastoViewModel = gastoViewModel,
                 categoriaViewModel = categoriaViewModel,
+                preferenciasRepository = preferenciasRepository,
                 onAgregar = { navController.navigate(Rutas.formulario(-1L)) },
-                onEditar = { id -> navController.navigate(Rutas.formulario(id)) }
+                // Antes iba directo al formulario; desde el Sprint 4 abre el detalle.
+                onEditar = { id -> navController.navigate(Rutas.detalle(id)) },
+                onConfiguracion = { navController.navigate(Rutas.CONFIGURACION) }
             )
         }
 
@@ -48,6 +57,30 @@ fun NavegacionApp(
                 gastoId = id,
                 gastoViewModel = gastoViewModel,
                 categoriaViewModel = categoriaViewModel,
+                onVolver = { navController.popBackStack() }
+            )
+        }
+
+        // Sprint 4: pantalla de detalle, con el botón de compartir.
+        composable(
+            route = Rutas.DETALLE,
+            arguments = listOf(navArgument(Rutas.ARG_ID) { type = NavType.LongType })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getLong(Rutas.ARG_ID) ?: return@composable
+            DetalleScreen(
+                gastoId = id,
+                gastoViewModel = gastoViewModel,
+                categoriaViewModel = categoriaViewModel,
+                preferenciasRepository = preferenciasRepository,
+                onEditar = { navController.navigate(Rutas.formulario(id)) },
+                onVolver = { navController.popBackStack() }
+            )
+        }
+
+        // Sprint 4: pantalla de configuración (tema y moneda).
+        composable(Rutas.CONFIGURACION) {
+            ConfiguracionScreen(
+                preferenciasRepository = preferenciasRepository,
                 onVolver = { navController.popBackStack() }
             )
         }

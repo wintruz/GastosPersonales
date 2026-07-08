@@ -34,6 +34,7 @@ import com.example.gastospersonales.ui.components.GastoItem
 import com.example.gastospersonales.ui.components.SelectorMes
 import com.example.gastospersonales.util.FormatoFecha
 import com.example.gastospersonales.util.FormatoMoneda
+import com.example.gastospersonales.data.PreferenciasRepository
 import com.example.gastospersonales.viewmodel.CategoriaViewModel
 import com.example.gastospersonales.viewmodel.GastoViewModel
 
@@ -43,20 +44,30 @@ import com.example.gastospersonales.viewmodel.GastoViewModel
  * se recompone sola.
  *
  * No hace queries ni conoce Room; solo lee estado y dispara callbacks de
- * navegación (onAgregar, onEditar).
+ * navegación (onAgregar, onEditar, onConfiguracion).
+ *
+ * Sprint 4: onEditar ahora lo interpreta NavegacionApp como "abrir el
+ * detalle" (el nombre del parámetro se mantiene para no tocar más de lo
+ * necesario), se conectó el botón de engranaje con onConfiguracion, y el
+ * total se formatea con la moneda elegida en Configuración. La moneda se
+ * lee directo de PreferenciasRepository (Flow simple, sin ViewModel: ver
+ * nota en ViewModelFactory.kt).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListaScreen(
     gastoViewModel: GastoViewModel,
     categoriaViewModel: CategoriaViewModel,
+    preferenciasRepository: PreferenciasRepository,
     onAgregar: () -> Unit,
-    onEditar: (Long) -> Unit
+    onEditar: (Long) -> Unit,
+    onConfiguracion: () -> Unit
 ) {
     val gastos by gastoViewModel.gastosDelMes.collectAsState()
     val total by gastoViewModel.totalDelMes.collectAsState()
     val mesActual by gastoViewModel.mesActual.collectAsState()
     val categorias by categoriaViewModel.categorias.collectAsState()
+    val moneda by preferenciasRepository.moneda.collectAsState(initial = "USD")
 
     // Mapa id -> Categoria para resolver rápido el ícono/nombre de cada gasto.
     val categoriasPorId: Map<Long, Categoria> = categorias.associateBy { it.id }
@@ -99,13 +110,12 @@ fun ListaScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = FormatoMoneda.formatear(total),
+                            text = FormatoMoneda.formatear(total, moneda),
                             style = MaterialTheme.typography.headlineMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     }
-                    // El engranaje de Configuración se conectará en el Sprint 4.
-                    IconButton(onClick = { /* Sprint 4: navegar a Configuración */ }) {
+                    IconButton(onClick = onConfiguracion) {
                         Icon(
                             imageVector = Icons.Filled.Settings,
                             contentDescription = "Configuración",

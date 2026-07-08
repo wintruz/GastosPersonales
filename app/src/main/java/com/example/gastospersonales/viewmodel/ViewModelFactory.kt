@@ -7,18 +7,12 @@ import com.example.gastospersonales.data.CategoriaRepositorio
 import com.example.gastospersonales.data.GastoRepositorio
 
 /**
- * Fábrica única para todos los ViewModel de la app.
+ * Fábrica única para los ViewModel de la app.
  *
- * Android solo sabe crear ViewModel con constructor vacío. Como
- * GastoViewModel y CategoriaViewModel reciben su repositorio por
- * constructor, hace falta esta fábrica para decirle a Android cómo
- * construir cada uno.
- *
- * Se usará en el Sprint 3 así, desde una pantalla Compose:
- *   val app = LocalContext.current.applicationContext as GestorGastosApp
- *   val factory = ViewModelFactory(app.gastoRepositorio, app.categoriaRepositorio)
- *   val gastoViewModel: GastoViewModel = viewModel(factory = factory)
- *   val categoriaViewModel: CategoriaViewModel = viewModel(factory = factory)
+ * Se queda igual que en el Sprint 2: solo GastoViewModel y CategoriaViewModel
+ * pasan por aquí. Las preferencias (Sprint 4) no tienen ViewModel propio —
+ * ConfiguracionScreen usa PreferenciasRepository directamente, porque no
+ * estaba reservado en el árbol de paquetes y no hacía falta uno.
  */
 class ViewModelFactory(
     private val gastoRepositorio: GastoRepositorio,
