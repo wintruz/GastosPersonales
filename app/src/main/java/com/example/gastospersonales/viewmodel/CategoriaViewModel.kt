@@ -50,4 +50,13 @@ class CategoriaViewModel(
             alTerminar(cantidad)
         }
     }
+
+    /**
+     * Cuántos gastos usan esta categoría (Sprint 4). Es suspend porque lee
+     * un valor puntual, no un Flow; GestionCategoriasScreen la llama dentro
+     * de un LaunchedEffect al pedir eliminar, para mostrar el número exacto
+     * de gastos que se reasignarán antes de que el usuario confirme.
+     */
+    suspend fun contarGastosAsociados(categoriaId: Long): Int =
+        categoriaRepositorio.contarGastosAsociados(categoriaId)
 }

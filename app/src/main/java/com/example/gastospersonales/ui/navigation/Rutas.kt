@@ -23,5 +23,8 @@ object Rutas {
     // Sprint 4: pantalla de configuración (sin argumentos).
     const val CONFIGURACION = "configuracion"
 
+    // Sprint 4: gestión de categorías, colgada de Configuración (sin argumentos).
+    const val GESTION_CATEGORIAS = "gestion_categorias"
+
     const val ARG_ID = "id"
 }

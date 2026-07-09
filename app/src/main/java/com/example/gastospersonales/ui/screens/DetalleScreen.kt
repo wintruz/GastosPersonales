@@ -35,6 +35,7 @@ import com.example.gastospersonales.model.Categoria
 import com.example.gastospersonales.model.Gasto
 import com.example.gastospersonales.util.FormatoFecha
 import com.example.gastospersonales.util.FormatoMoneda
+import com.example.gastospersonales.data.FormatoFechaPreferido
 import com.example.gastospersonales.data.PreferenciasRepository
 import com.example.gastospersonales.viewmodel.CategoriaViewModel
 import com.example.gastospersonales.viewmodel.GastoViewModel
@@ -58,6 +59,8 @@ fun DetalleScreen(
 ) {
     val categorias by categoriaViewModel.categorias.collectAsState()
     val moneda by preferenciasRepository.moneda.collectAsState(initial = "USD")
+    val formatoFecha by preferenciasRepository.formatoFecha
+        .collectAsState(initial = FormatoFechaPreferido.DIA_MES_ANIO)
     var gasto by remember { mutableStateOf<Gasto?>(null) }
     val context = LocalContext.current
 
@@ -82,7 +85,7 @@ fun DetalleScreen(
                     }
                     IconButton(onClick = {
                         gasto?.let { g ->
-                            compartirGasto(context, g, categoria, moneda)
+                            compartirGasto(context, g, categoria, moneda, formatoFecha)
                         }
                     }) {
                         Icon(Icons.Filled.Share, contentDescription = "Compartir")
@@ -126,7 +129,7 @@ fun DetalleScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = FormatoFecha.fechaLarga(g.fecha),
+                    text = FormatoFecha.formatear(g.fecha, formatoFecha),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -139,12 +142,18 @@ fun DetalleScreen(
  * Arma el texto plano del gasto y lanza el selector nativo de Android para
  * compartirlo (WhatsApp, correo, etc.), vía Intent.createChooser().
  */
-private fun compartirGasto(context: android.content.Context, gasto: Gasto, categoria: Categoria?, moneda: String) {
+private fun compartirGasto(
+    context: android.content.Context,
+    gasto: Gasto,
+    categoria: Categoria?,
+    moneda: String,
+    formatoFecha: FormatoFechaPreferido
+) {
     val texto = buildString {
         append("Gasto: ${gasto.descripcion}\n")
         append("Monto: ${FormatoMoneda.formatear(gasto.monto, moneda)}\n")
         append("Categoría: ${categoria?.nombre ?: "Sin categoría"}\n")
-        append("Fecha: ${FormatoFecha.fechaLarga(gasto.fecha)}")
+        append("Fecha: ${FormatoFecha.formatear(gasto.fecha, formatoFecha)}")
     }
     val intent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"

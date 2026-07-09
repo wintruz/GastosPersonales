@@ -10,6 +10,7 @@ import com.example.gastospersonales.data.PreferenciasRepository
 import com.example.gastospersonales.ui.screens.ConfiguracionScreen
 import com.example.gastospersonales.ui.screens.DetalleScreen
 import com.example.gastospersonales.ui.screens.FormularioScreen
+import com.example.gastospersonales.ui.screens.GestionCategoriasScreen
 import com.example.gastospersonales.ui.screens.ListaScreen
 import com.example.gastospersonales.viewmodel.CategoriaViewModel
 import com.example.gastospersonales.viewmodel.GastoViewModel
@@ -57,7 +58,16 @@ fun NavegacionApp(
                 gastoId = id,
                 gastoViewModel = gastoViewModel,
                 categoriaViewModel = categoriaViewModel,
-                onVolver = { navController.popBackStack() }
+                preferenciasRepository = preferenciasRepository,
+                onVolver = { navController.popBackStack() },
+                // Al eliminar, se vuelve hasta la Lista de una sola vez, sin
+                // importar si se llegó por Lista -> Formulario (una pantalla
+                // de por medio) o por Lista -> Detalle -> Formulario (dos).
+                // Un popBackStack() simple solo retrocedería una pantalla y
+                // dejaría el Detalle mostrando un gasto que ya no existe.
+                onEliminado = {
+                    navController.popBackStack(route = Rutas.LISTA, inclusive = false)
+                }
             )
         }
 
@@ -77,10 +87,19 @@ fun NavegacionApp(
             )
         }
 
-        // Sprint 4: pantalla de configuración (tema y moneda).
+        // Sprint 4: pantalla de configuración (tema, moneda y formato de fecha).
         composable(Rutas.CONFIGURACION) {
             ConfiguracionScreen(
                 preferenciasRepository = preferenciasRepository,
+                onVolver = { navController.popBackStack() },
+                onGestionarCategorias = { navController.navigate(Rutas.GESTION_CATEGORIAS) }
+            )
+        }
+
+        // Sprint 4: gestión de categorías, colgada de Configuración.
+        composable(Rutas.GESTION_CATEGORIAS) {
+            GestionCategoriasScreen(
+                categoriaViewModel = categoriaViewModel,
                 onVolver = { navController.popBackStack() }
             )
         }

@@ -132,6 +132,7 @@ fun ListaScreen(
                 ListaDeGastos(
                     gastos = gastos,
                     categoriasPorId = categoriasPorId,
+                    moneda = moneda,
                     onEditar = onEditar
                 )
             }
@@ -147,6 +148,7 @@ fun ListaScreen(
 private fun ListaDeGastos(
     gastos: List<com.example.gastospersonales.model.Gasto>,
     categoriasPorId: Map<Long, Categoria>,
+    moneda: String,
     onEditar: (Long) -> Unit
 ) {
     // Precalcular en qué posiciones cambia el día, para saber dónde va un
@@ -184,6 +186,7 @@ private fun ListaDeGastos(
             GastoItem(
                 gasto = gasto,
                 categoria = categoriasPorId[gasto.categoriaId],
+                moneda = moneda,
                 onClick = { onEditar(gasto.id) }
             )
         }

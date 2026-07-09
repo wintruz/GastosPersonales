@@ -31,4 +31,13 @@ class CategoriaRepositorio(private val categoriaDao: CategoriaDao) {
      */
     suspend fun eliminar(categoria: Categoria): Int =
         categoriaDao.eliminarConReasignacion(categoria)
+
+    /**
+     * Cuántos gastos usan esta categoría (Sprint 4). Se usa ANTES de pedir
+     * confirmación de borrado, para poder avisar con el número exacto de
+     * gastos que se reasignarán a "Otro" ("Se reasignarán 3 gastos"),
+     * en vez de un mensaje genérico.
+     */
+    suspend fun contarGastosAsociados(categoriaId: Long): Int =
+        categoriaDao.contarGastosDeCategoria(categoriaId)
 }

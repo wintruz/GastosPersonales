@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.gastospersonales.model.Categoria
 import com.example.gastospersonales.model.Gasto
@@ -32,11 +33,19 @@ import com.example.gastospersonales.util.IconosCategoria
  *
  * La categoría se recibe ya resuelta (puede ser null si no se encontró,
  * en cuyo caso se muestran valores neutros).
+ *
+ * La descripción se limita a 2 líneas (maxLines + TextOverflow.Ellipsis):
+ * si el texto no cabe, Compose la corta y agrega "…" al final, sin volver
+ * la fila más alta ni sobrecargar la pantalla con la descripción de un solo
+ * gasto. No se agrega ningún estado ni evento nuevo para esto: es puramente
+ * visual, y el toque en la fila sigue abriendo el detalle como siempre,
+ * donde la descripción si se ve completa.
  */
 @Composable
 fun GastoItem(
     gasto: Gasto,
     categoria: Categoria?,
+    moneda: String = "USD",
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -70,7 +79,9 @@ fun GastoItem(
             Text(
                 text = gasto.descripcion,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = categoria?.nombre ?: "Sin categoría",
@@ -83,7 +94,7 @@ fun GastoItem(
 
         // Monto.
         Text(
-            text = FormatoMoneda.formatear(gasto.monto),
+            text = FormatoMoneda.formatear(gasto.monto, moneda),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
