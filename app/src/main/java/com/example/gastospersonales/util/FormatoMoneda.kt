@@ -21,6 +21,16 @@ object FormatoMoneda {
      * codigoMoneda. Si el código no es válido, cae a USD para no romper
      * la pantalla por una preferencia corrupta.
      */
+
+     fun simbolo(codigoMoneda: String = "USD"): String {
+        val moneda = try {
+            Currency.getInstance(codigoMoneda)
+        } catch (e: IllegalArgumentException) {
+            Currency.getInstance("USD")
+        }
+        return moneda.getSymbol(localeRegional)
+    }
+
     fun formatear(monto: Double, codigoMoneda: String = "USD"): String {
         val moneda = try {
             Currency.getInstance(codigoMoneda)

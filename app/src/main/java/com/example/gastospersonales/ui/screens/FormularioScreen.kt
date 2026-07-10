@@ -67,6 +67,7 @@ import com.example.gastospersonales.util.GestorArchivos
 import com.example.gastospersonales.viewmodel.CategoriaViewModel
 import com.example.gastospersonales.viewmodel.GastoViewModel
 import java.io.File
+import com.example.gastospersonales.util.FormatoMoneda
 
 /**
  * Formulario para crear o editar un gasto.
@@ -98,6 +99,8 @@ fun FormularioScreen(
     val categorias by categoriaViewModel.categorias.collectAsState()
     val formatoFecha by preferenciasRepository.formatoFecha
         .collectAsState(initial = FormatoFechaPreferido.DIA_MES_ANIO)
+    val monedaPreferida by preferenciasRepository.moneda
+    .collectAsState(initial = "USD")
     // gastoViewModel es la MISMA instancia que usa ListaScreen (se crea una
     // sola vez en MainActivity y se comparte). Leer su mesActual aquí da,
     // sin ningún parámetro de navegación extra, el mes que el usuario estaba
@@ -237,7 +240,7 @@ fun FormularioScreen(
                     value = montoTexto,
                     onValueChange = { montoTexto = it.replace(',', '.') },
                     placeholder = { Text("0.00") },
-                    prefix = { Text("$") },
+                    prefix = { Text(FormatoMoneda.simbolo(monedaPreferida)) }, // antes = prefix = { Text("$") },
                     singleLine = true,
                     isError = errorMonto,
                     supportingText = {
